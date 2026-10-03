@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProfitEngine | Digital Product & Ecommerce Margin Calculator</title>
+  <meta name="description" content="Calculate exact net margins, platform fee drag, and break-even ad spend across Lemon Squeezy, Gumroad, Shopify, and Etsy." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090b10;
+      --bg-card: #121622;
+      --bg-card-hover: #171c2b;
+      --border: #222938;
+      --border-accent: #2e384d;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.15);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      background: rgba(9, 11, 16, 0.85);
+      z-index: 50;
+    }
+    .nav-container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.03em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .logo span {
+      color: var(--accent);
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+    .nav-links a:hover {
+      color: #fff;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.7rem 1.4rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+    .btn-primary {
+      background: #fff;
+      color: #000;
+    }
+    .btn-primary:hover {
+      background: #e5e7eb;
+      transform: translateY(-1px);
+    }
+    .btn-accent {
+      background: var(--accent);
+      color: #042718;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+    .btn-accent:hover {
+      background: #059669;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem;
+    }
+    .hero {
+      text-align: center;
+      padding: 5rem 1.5rem 3rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--accent);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.3rem, 5vw, 3.8rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, #60a5fa 0%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* Calculator Widget */
+    .calculator-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin: 3rem 0;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .calculator-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    @media (max-width: 768px) {
+      .calculator-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .form-control {
+      width: 100%;
+      background: #090b10;
+      border: 1px solid var(--border-accent);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+    }
+    .metric-card {
+      background: #0b0e14;
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .metric-card:last-child {
+      margin-bottom: 0;
+    }
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
+    }
+    .metric-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .metric-val.green {
+      color: var(--accent);
+    }
+    .metric-sub {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    /* Grid Features */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover {
+      border-color: var(--border-accent);
+    }
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #60a5fa;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+    .feature-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .feature-desc {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    /* Pricing Section */
+    .pricing-card {
+      background: linear-gradient(180deg, #161c2c 0%, #0f1420 100%);
+      border: 1px solid #3b82f6;
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      max-width: 540px;
+      margin: 3rem auto 0;
+      text-align: center;
+      position: relative;
+    }
+    .pricing-price {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin: 1.25rem 0 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .pricing-tagline {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+    .pricing-list {
+      text-align: left;
+      list-style: none;
+      margin-bottom: 2.5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1.5rem;
+    }
+    .pricing-list li {
+      padding: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #d1d5db;
+      font-size: 0.95rem;
+    }
+    .pricing-list li span.check {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    /* Policies / Legal for Lemon Squeezy */
+    .legal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+      border-top: 1px solid var(--border);
+      padding-top: 3rem;
+    }
+    .legal-card h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: #fff;
+    }
+    .legal-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo">PROFIT<span>ENGINE</span></a>
+      <div class="nav-links">
+        <a href="#calculator">Live Demo</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#support">Support</a>
+        <a href="#pricing" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Get Instant Access</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="container">
+    <section class="hero">
+      <div class="badge">Official Product Verification & Storefront</div>
+      <h1>Stop Guessing Your Real Margins. <span>Master Your Cash Flow.</span></h1>
+      <p>The unit economics, fee drag, and ad spend break-even calculator built specifically for digital product creators, agency operators, and template sellers.</p>
+      <div class="hero-actions">
+        <a href="#pricing" class="btn btn-accent">Download ProfitEngine - $67</a>
+        <a href="#calculator" class="btn btn-primary">Try Interactive Calculator</a>
+      </div>
+    </section>
+
+    <!-- Interactive Live Calculator -->
+    <section id="calculator" class="calculator-section">
+      <div style="margin-bottom: 1.75rem;">
+        <h2 style="font-size: 1.5rem; font-weight: 700;">Live Interactive Margin Model</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Test how payment rails, processing cuts, and customer acquisition costs impact your actual take-home revenue.</p>
+      </div>
+
+      <div class="calculator-grid">
+        <!-- Inputs -->
+        <div>
+          <div class="form-group">
+            <label for="platform">Checkout Platform</label>
+            <select id="platform" class="form-control" onchange="recalculate()">
+              <option value="lemonsqueezy">Lemon Squeezy (5% + $0.50)</option>
+              <option value="gumroad">Gumroad (10% flat)</option>
+              <option value="shopify">Shopify Digital (2.9% + $0.30)</option>
+              <option value="stripe">Direct Stripe Checkout (2.9% + $0.30)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="price">Retail Sale Price ($)</label>
+            <input type="number" id="price" class="form-control" value="67" step="1" oninput="recalculate()" />
+          </div>
+
+          <div class="form-group">
+            <label for="cac">Estimated Ad Spend / Acquisition Cost ($)</label>
+            <input type="number" id="cac" class="form-control" value="15" step="1" oninput="recalculate()" />
+          </div>
+
+          <div class="form-group">
+            <label for="monthly-target">Target Net Income / Month ($)</label>
+            <input type="number" id="monthly-target" class="form-control" value="5000" step="100" oninput="recalculate()" />
+          </div>
+        </div>
+
+        <!-- Real-Time Metrics Output -->
+        <div>
+          <div class="metric-card">
+            <div class="metric-label">Net Take-Home Cash Per Unit</div>
+            <div class="metric-val green" id="out-net">$48.15</div>
+            <div class="metric-sub" id="out-margin">Margin: 71.9% of sale price</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Max Break-Even Ad Spend (CPA)</div>
+            <div class="metric-val" id="out-cpa">$63.15</div>
+            <div class="metric-sub">Highest allowable acquisition cost before losing money</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Required Monthly Sales Volume</div>
+            <div class="metric-val" id="out-sales">104 units / mo</div>
+            <div class="metric-sub" id="out-daily">Approx. 3.5 sales per day to hit target</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Product Features -->
+    <section id="features" style="padding: 3rem 0;">
+      <div style="text-align: center; max-width: 600px; margin: 0 auto 3rem;">
+        <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.75rem;">Engineered for Clarity and Profitability</h2>
+        <p style="color: var(--text-muted);">Eliminate spreadsheet bloat. Get straight to the numbers that determine whether your business scales or burns capital.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">$</div>
+          <div class="feature-title">Multi-Platform Fee Preset Engine</div>
+          <div class="feature-desc">Pre-calibrated fee structures for Lemon Squeezy, Gumroad, Shopify, and Etsy. Always know your net payout to the exact penny.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">%</div>
+          <div class="feature-title">Break-Even Ad Spend Safeguard</div>
+          <div class="feature-desc">Direct formula calculating your maximum allowable Cost Per Acquisition (CPA) so you never run unprofitable paid campaigns.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">&#x2197;</div>
+          <div class="feature-title">Target Sales & Income Simulator</div>
+          <div class="feature-desc">Input your monthly revenue target and generate the exact volume breakdown needed per day, week, and quarter.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">&#x2699;</div>
+          <div class="feature-title">Universal Format Compatibility</div>
+          <div class="feature-desc">Includes 1-click Google Sheets copy link, standalone Microsoft Excel (.xlsx) file, and CSV raw data models.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F4CB;</div>
+          <div class="feature-title">12-Month Cash Flow Projections</div>
+          <div class="feature-desc">Dynamic 12-month runway and revenue modeling tab to map out multi-product launches and recurring licensing fees.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">&#x25B6;</div>
+          <div class="feature-title">5-Minute Video Quickstart Guide</div>
+          <div class="feature-desc">Step-by-step video walkthrough showing how to input custom costs, add new products, and export executive reports.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing / Purchase Tier (Fulfilling Lemon Squeezy Compliance) -->
+    <section id="pricing" style="padding: 3rem 0;">
+      <div style="text-align: center;">
+        <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">One-Time Purchase. Lifetime Access.</h2>
+        <p style="color: var(--text-muted);">No recurring subscriptions. Receive all future version updates for free.</p>
+      </div>
+
+      <div class="pricing-card">
+        <div style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.05em;">Commercial Creator License</div>
+        <div class="pricing-price">$67</div>
+        <div class="pricing-tagline">One-time payment. Instant digital delivery.</div>
+
+        <ul class="pricing-list">
+          <li><span class="check">&#10003;</span> Complete Google Sheets Model (Live Copy Link)</li>
+          <li><span class="check">&#10003;</span> Microsoft Excel (.xlsx) Standalone Spreadsheet</li>
+          <li><span class="check">&#10003;</span> Pre-Configured Fee Matrices for All Major Platforms</li>
+          <li><span class="check">&#10003;</span> 12-Month Runway & Net Revenue Projections</li>
+          <li><span class="check">&#10003;</span> 5-Minute Video Walkthrough & Implementation Guide</li>
+          <li><span class="check">&#10003;</span> Commercial License for Unlimited Personal & Client Stores</li>
+        </ul>
+
+        <!-- Lemon Squeezy Checkout Hook -->
+        <a href="#pricing" class="btn btn-accent" style="width: 100%; padding: 1rem; font-size: 1.05rem;" id="checkout-button">Buy Now via Lemon Squeezy</a>
+        <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 1rem;">
+          Secured by Lemon Squeezy (Merchant of Record). VAT and sales tax handled automatically.
+        </div>
+      </div>
+    </section>
+
+    <!-- Compliance, Refund Policy, Terms & Contact Information -->
+    <section id="support" class="legal-grid">
+      <div class="legal-card">
+        <h4>About ProfitEngine</h4>
+        <p>ProfitEngine is built and published by StarNet Digital Products. We develop data-driven financial templates and workflow tools for modern solo operators and ecommerce founders worldwide.</p>
+      </div>
+
+      <div class="legal-card">
+        <h4>Refund Policy</h4>
+        <p>We stand behind the quality of our tools. If you encounter any technical defect or formula error that our support team cannot resolve within 14 days of purchase, we will issue a full refund upon request.</p>
+      </div>
+
+      <div class="legal-card">
+        <h4>Product Delivery</h4>
+        <p>This is a digital product. Immediately upon checkout completion through Lemon Squeezy, you will receive an automated email containing your download link, Google Drive copy access, and setup instructions.</p>
+      </div>
+
+      <div class="legal-card">
+        <h4>Support & Contact</h4>
+        <p>Have questions before or after purchasing? Reach out directly to our support desk:<br />
+        <strong>Email:</strong> support@starnetdigital.io<br />
+        <strong>Hours:</strong> Mon - Fri, 9:00 AM - 5:00 PM EST</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container" style="padding: 0;">
+      <p>&copy; 2025 StarNet Digital Products. All rights reserved. Lemon Squeezy is a trademark of Lemon Squeezy, LLC.</p>
+    </div>
+  </footer>
+
+  <script>
+    function recalculate() {
+      const platform = document.getElementById('platform').value;
+      const price = parseFloat(document.getElementById('price').value) || 0;
+      const cac = parseFloat(document.getElementById('cac').value) || 0;
+      const targetMonthly = parseFloat(document.getElementById('monthly-target').value) || 0;
+
+      let pctFee = 0.05;
+      let fixedFee = 0.50;
+
+      if (platform === 'lemonsqueezy') {
+        pctFee = 0.05;
+        fixedFee = 0.50;
+      } else if (platform === 'gumroad') {
+        pctFee = 0.10;
+        fixedFee = 0.00;
+      } else if (platform === 'shopify' || platform === 'stripe') {
+        pctFee = 0.029;
+        fixedFee = 0.30;
+      }
+
+      const platformCut = (price * pctFee) + fixedFee;
+      const netPayout = Math.max(0, price - platformCut - cac);
+      const grossMarginPct = price > 0 ? ((netPayout / price) * 100).toFixed(1) : 0;
+      const maxCpa = Math.max(0, price - platformCut);
+
+      const unitsNeeded = netPayout > 0 ? Math.ceil(targetMonthly / netPayout) : 0;
+      const dailyUnits = unitsNeeded > 0 ? (unitsNeeded / 30).toFixed(1) : 0;
+
+      document.getElementById('out-net').innerText = '$' + netPayout.toFixed(2);
+      document.getElementById('out-margin').innerText = 'Margin: ' + grossMarginPct + '% of retail price';
+      document.getElementById('out-cpa').innerText = '$' + maxCpa.toFixed(2);
+      document.getElementById('out-sales').innerText = unitsNeeded + ' units / mo';
+      document.getElementById('out-daily').innerText = 'Approx. ' + dailyUnits + ' sales per day to hit target';
+    }
+
+    // Run on load
+    recalculate();
+  </script>
+</body>
+</html>
